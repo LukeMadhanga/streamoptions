@@ -27,7 +27,12 @@
             console.log(data);
             app.v.initView.call(T, data);
         },
-        getValue: function () {
+        /**
+         * 
+         * @param {type} validate
+         * @returns {undefined|Boolean|streamoptions_L1.methods.getValue.T|$}
+         */
+        getValue: function (validate) {
             var T = $(this);
             if (T.length > 1) {
                 T.each(function () {
@@ -48,6 +53,10 @@
                 var value = $('.streamoptions-list-item-value', this).val();
                 output[key] = value;
             });
+            if (is_a(validate, 'function') && validate.call(T, output) !== true) {
+                $.error('Options did not validate');
+                return false;
+            }
             T[0].value = JSON.stringify(output);
             return output;
         }
@@ -55,7 +64,7 @@
     
     /**
      * 
-     * @param {type} data
+     * @param {expected} data
      * @returns {undefined}
      */
     app.v.initView = function (data) {
@@ -67,13 +76,22 @@
         for (x in data.value) {
             $(app.v.renderOpt(x, data.value[x], data.s.availableoptions)).insertBefore(add);
         }
-        app.c.rebindEvents.call(this);
+        app.c.bindEvents.call(this);
     };
     
     
-    app.c.rebindEvents = function () {
-        $('.streamoptions-list-item-del', this).unbind('click.removeitem').on('click.removeitem', function () {
-            
+    app.c.bindEvents = function () {
+        var t = this;
+        var scope = this.closest('.streamoptions-list');
+        var opts = this.data('streamoptions').s.availableoptions;
+        $('.streamoptions-list-item-del', scope).unbind('click.removeitem').on('click.removeitem', function () {
+            if (confirm('Are you sure you want to remove this item?')) {
+                $(this).closest('.streamoptions-list-item').remove();
+            }
+        });
+        $('.streamoptions-add', scope).unbind('click.addone').on('click.addone', function () {
+            $(app.v.renderOpt('', '', opts)).insertBefore(this);
+            app.c.bindEvents.call(t);
         });
     };
     
@@ -109,6 +127,21 @@
     };
     
     /**
+     * Test to see if an object is of a particular type
+     * @param {mixed} variable The object to test
+     * @param {string} expected The type expected
+     * @returns {String|Boolean} False if the object is undefined, or a boolean depending on whether the object matches
+     */
+    function is_a(variable, expected) {
+        if (variable === undefined) {
+            // Undefined is an object in IE8
+            return false;
+        }
+        var otype = expected.substr(0, 1).toUpperCase() + expected.substr(1).toLowerCase();
+        return Object.prototype.toString.call(variable) === '[object ' + otype + ']';
+    }
+    
+    /**
      * Generate a xhtml element, e.g. a div element
      * @syntax cHE.getHtml(tagname, body, htmlid, cssclass, {attribute: value});
      * @param {string} tagname The type of element to generate
@@ -140,7 +173,7 @@
      * @returns {object(DOMElement)}
      */
     function setAttributes(obj, attrs) {
-        if (Object.prototype.toString.call(attrs) === '[object Object]') {
+        if (is_a(attrs, 'object')) {
             for (var x in attrs) {
                 if (attrs.hasOwnProperty(x)) {
                     var val = attrs[x];
