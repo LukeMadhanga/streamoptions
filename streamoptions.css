@@ -1,0 +1,49 @@
+.streamoptions-list-item-title,.streamoptions-list-item-value {
+    padding: 5px;
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top;
+    background-color: #FFF;
+    outline: none;
+    border: none;
+    height: 30px;
+}
+select.streamoptions-list-item-title {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+.streamoptions-list-item-title:focus,.streamoptions-list-item-value:focus {
+    border: none;
+}
+.streamoptions-list-item-title,.streamoptions-list-item-title:focus {
+    border-right: dotted thin #EEE;
+}
+.streamoptions-list-item,.streamoptions-list-item-main,.streamoptions-list-item-del,.streamoptions-add {
+    display: inline-block;
+    vertical-align: top;
+}
+.streamoptions-list * {
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.streamoptions-list-item-del,.streamoptions-add {
+    padding: 5px;
+    width: 20px;
+    text-align: center;
+    background-color: #EEE;
+    cursor: pointer;
+    height: 30px;
+    width: 30px;
+}
+.streamoptions-list-item {
+    margin: 0 10px 10px 0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+.streamoptions-add {
+    border-radius: 2px;
+}
