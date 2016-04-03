@@ -27,8 +27,9 @@
             app.v.initView.call(T, data);
         },
         /**
-         * 
-         * @param {type} validate
+         * Get the value of the current set of options
+         * @param {callback} validate [optional] A function to validate the output. If set, a value of <b>true MUST</b> be returned in
+         *  order to allow the function to continue 
          * @returns {undefined|Boolean|streamoptions_L1.methods.getValue.T|$}
          */
         getValue: function (validate) {
@@ -44,12 +45,12 @@
                 $.error('Call to function streamOptions(getValue) of an uninitialized object');
                 return;
             }
-            var scope = T.closest('.streamoptions-list');
-            var output = {};
+            var scope = T.closest('.streamoptions-list'),
+            output = {};
             $('.streamoptions-list-item', scope).each(function () {
-                var key = $('.streamoptions-list-item-title', this).val();
+                var key = $('.streamoptions-list-item-title', this).val(),
                 // @todo throw exception if key value not set
-                var value = $('.streamoptions-list-item-value', this).val();
+                value = $('.streamoptions-list-item-value', this).val();
                 output[key] = value;
             });
             if (is_a(validate, 'function') && validate.call(T, output) !== true) {
@@ -58,31 +59,65 @@
             }
             T[0].value = JSON.stringify(output);
             return output;
+        },
+        /**
+         * Redraw the output
+         * @returns {$|undefined}
+         */
+        redraw: function () {
+            var T = $(this);
+            if (T.length > 1) {
+                T.each(function () {
+                    return T.streamOptions('redraw');
+                });
+                return T;
+            }
+            var data = T.data('streamoptions');
+            if (!data) {
+                $.error('Call to function streamOptions(redraw) of an uninitialized object');
+                return;
+            }
+            T.streamOptions('getValue');
+            $('.streamoptions-list-item', T.closest('.streamoptions-list'));
+            app.v.drawOutput.call(T, data);
+            return T;
         }
     };
     
     /**
-     * 
-     * @param {expected} data
+     * Initialise the view
+     * @param {object} data The object describing this instance
      * @returns {undefined}
      */
     app.v.initView = function (data) {
-        var x;
         var addhtml = getHtml('div', '+', null, 'streamoptions-add');
         $(getHtml('div', addhtml, 'streamoptions-' + data.instanceid, 'streamoptions-list')).insertAfter(this);
-        var scope = $('#streamoptions-' + data.instanceid).append(this.hide());
-        var add = $('.streamoptions-add', scope);
+        app.v.drawOutput.call(this, data);
+    };
+    
+    /**
+     * Draw the output body
+     * @param {object} data The object describing this instance
+     * @returns {undefined}
+     */
+    app.v.drawOutput = function (data) {
+        var x,
+        scope = $('#streamoptions-' + data.instanceid).append(this.hide()),
+        add = $('.streamoptions-add', scope);
         for (x in data.value) {
             $(app.v.renderOpt(x, data.value[x], data.s.availableoptions)).insertBefore(add);
         }
         app.c.bindEvents.call(this);
     };
     
-    
+    /**
+     * Bind events onto all of the created elements in this instance
+     * @returns {undefined}
+     */
     app.c.bindEvents = function () {
-        var t = this;
-        var scope = this.closest('.streamoptions-list');
-        var opts = this.data('streamoptions').s.availableoptions;
+        var t = this,
+        scope = this.closest('.streamoptions-list'),
+        opts = this.data('streamoptions').s.availableoptions;
         $('.streamoptions-list-item-del', scope).unbind('click.removeitem').on('click.removeitem', function () {
             if (confirm('Are you sure you want to remove this item?')) {
                 $(this).closest('.streamoptions-list-item').remove();
@@ -94,34 +129,41 @@
         });
     };
     
+    /**
+     * Render a key-value option
+     * @param {string} title The title (key) of the option
+     * @param {string} value The value of the option
+     * @param {object} options [optional] The availableoptions, if any
+     * @returns {html}
+     */
     app.v.renderOpt = function (title, value, options) {
-        var main = app.v.renderKeySelector(options, title) + 
-                getHtml('input', null, null, 'streamoptions-list-item-value', {value: value});
-        var html = getHtml('div', main, null, 'streamoptions-list-item-main') + getHtml('div', 'x', null, 'streamoptions-list-item-del');
+        var main = app.v.renderKeySelector(title, options) + 
+                getHtml('input', null, null, 'streamoptions-list-item-value', {value: value}),
+        html = getHtml('div', main, null, 'streamoptions-list-item-main') + getHtml('div', 'x', null, 'streamoptions-list-item-del');
         return getHtml('div', html, null, 'streamoptions-list-item');
     };
     
     /**
-     * 
-     * @param {object} options
-     * @param {string} selected
+     * Render the key selector, either an input if there are no availableoptions or a select
+     * @param {string} key The selected key
+     * @param {object} options [optional] The availableoptions, if any
      * @returns {html}
      */
-    app.v.renderKeySelector = function (options, selected) {
+    app.v.renderKeySelector = function (key, options) {
         if (options) {
-            var opts = getHtml('option', 'select...');
-            var x;
-            var attrs;
+            var opts = getHtml('option', 'select...'),
+            x,
+            attrs;
             for (x in options) {
                 attrs = {value: x};
-                if (x === selected) {
+                if (x === key) {
                     attrs['selected'] = 'selected';
                 }
                 opts += getHtml('option', x, null, null, attrs);
             }
             return getHtml('select', opts, null, 'streamoptions-list-item-title');
         } else {
-            return getHtml('input', null, null, 'streamoptions-list-item-title', {value: selected});
+            return getHtml('input', null, null, 'streamoptions-list-item-title', {value: key});
         }
     };
     
@@ -211,8 +253,8 @@
             case '[object Array]':
                 output = {};
                 for (var i = 0; i < set.length; i++) {
-                    var title = set[i];
-                    var key = title.replace(' ', '');
+                    var title = set[i],
+                    key = title.replace(' ', '');
                     output[key] = {title: title, type: 'text'};
                 }
                 break;
