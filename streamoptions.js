@@ -11,7 +11,7 @@
                 return T;
             } else if (T.length > 1) {
                 T.each(function () {
-                    return T.streamOptions(opts);
+                    return $(this).streamOptions(opts);
                 });
                 return T;
             }
@@ -24,7 +24,6 @@
                 value: T[0].value ? JSON.parse(T[0].value) : {}
             };
             T.data('streamoptions', data);
-            console.log(data);
             app.v.initView.call(T, data);
         },
         /**
