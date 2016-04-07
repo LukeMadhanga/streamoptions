@@ -68,3 +68,69 @@ select.streamoptions-list-item-title {
     width: 90%;
     width: calc(100% - 30px);
 }
+/*Style the boolean (from https://goo.gl/nrwbSb)*/
+input.streamoptions-list-item-value.streamoptions-boolean {
+    margin: 0;
+    padding: 0 5px;
+}
+input.streamoptions-list-item-value.streamoptions-boolean {
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+}
+input.streamoptions-list-item-value.streamoptions-boolean::-webkit-slider-thumb {
+    -webkit-appearance: none;
+}
+input.streamoptions-list-item-value.streamoptions-boolean:focus {
+    outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+input.streamoptions-list-item-value.streamoptions-boolean::-ms-track {
+    cursor: pointer;
+    background: transparent; /* Hides the slider so custom styles can be added */
+    border-color: transparent;
+    color: transparent;
+}
+
+/*STYLING FOR THE THUMB*/
+/* for some reason, cannot save space and put all of the styles together */
+/* Special styling for WebKit/Blink */
+input.streamoptions-list-item-value.streamoptions-boolean::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 50%;
+    height: 26px;
+    border-radius: 2px;
+    border: solid thin #CCC;
+    background: #EEE;
+    cursor: pointer;
+    margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+}
+/* All the same stuff for Firefox */
+input.streamoptions-list-item-value.streamoptions-boolean::-moz-range-thumb {
+    width: 50%;
+    height: 26px;
+    border-radius: 2px;
+    border: solid thin #CCC;
+    background: #EEE;
+    cursor: pointer;
+    margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+}
+/* All the same stuff for IE */
+input.streamoptions-list-item-value.streamoptions-boolean::-ms-thumb {
+    width: 50%;
+    height: 26px;
+    border-radius: 2px;
+    border: solid thin #CCC;
+    background: #EEE;
+    cursor: pointer;
+    margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+}
+input.streamoptions-list-item-value.streamoptions-boolean.streamoptions-boolean-true::-webkit-slider-thumb {
+    background: #93B7F9;
+    border: none;
+}
+input.streamoptions-list-item-value.streamoptions-boolean.streamoptions-boolean-true::-moz-range-thumb {
+    background: #93B7F9;
+    border: none;
+}
+input.streamoptions-list-item-value.streamoptions-boolean.streamoptions-boolean-true::-ms-thumb {
+    background: #93B7F9;
+    border: none;
+}
