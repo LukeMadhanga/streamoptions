@@ -94,7 +94,14 @@
             app.v.drawOutput.call(T, data);
             return T;
         },
-        updateAvailableOptions: function () {
+        /**
+         * Update the list of available options
+         * @param {mixed} availableopts Either a String - A comma separated list of options; Object - An object in one of two forms: 
+         *  {title: datatype} or {name: {title: string, type: string}} (the outputted data format); Array - An array of titles, 
+         *  e.g. ['Title', 'Another title', ...]
+         * @returns {$}
+         */
+        updateAvailableOptions: function (availableopts) {
             var T = $(this);
             if (T.length > 1) {
                 T.each(function () {
@@ -106,13 +113,9 @@
             if (!data) {
                 $.error('Call to function streamOptions(redraw) of an uninitialized object');
             }
-            app.m.updateAvailableOptions.call(T);
+            data.s.availableoptions = availableopts ? parseAvailableOptions(availableopts) : null;
+            app.v.redraw.call(T, data);
         }
-    };
-    
-    app.m.updateAvailableOptions = function () {
-        var sodata = this.data('streamoptions');
-        
     };
     
     /**
@@ -139,6 +142,17 @@
             $(app.v.renderOpt(x, data.value[x], data.s.availableoptions)).insertBefore(add);
         }
         app.c.bindEvents.call(this);
+    };
+    
+    /**
+     * Redraw the output
+     * @param {type} data
+     * @returns {undefined}
+     */
+    app.v.redraw = function (data) {
+        var scope = this.closest('.streamoptions-list');
+        $('.streamoptions-list-item', scope).remove();
+        app.v.drawOutput.call(this, data);
     };
     
     /**
