@@ -10,6 +10,8 @@
     outline: none;
     border: none;
     height: 30px;
+    min-width: 85px;
+    width: 50%;
 }
 select.streamoptions-list-item-title {
     -webkit-appearance: none;
@@ -20,7 +22,8 @@ select.streamoptions-list-item-title {
     border: none;
 }
 .streamoptions-list-item-title,.streamoptions-list-item-title:focus {
-    border-right: dotted thin #EEE;
+    border-right: solid thin #BBB;
+    background-color: #EEEEEE;
 }
 .streamoptions-list-item,.streamoptions-list-item-main,.streamoptions-list-item-del,.streamoptions-add {
     display: inline-block;
@@ -32,18 +35,36 @@ select.streamoptions-list-item-title {
 }
 .streamoptions-list-item-del,.streamoptions-add {
     padding: 5px;
-    width: 20px;
     text-align: center;
     background-color: #EEE;
     cursor: pointer;
     height: 30px;
     width: 30px;
+    font-weight: bold;
+    -webkit-transition: background-color 0.2s;
+    -moz-transition: background-color 0.2s;
+    transition: background-color 0.2s;
+}
+.streamoptions-list-item-del:hover,.streamoptions-add:hover {
+    background-color: #BBB;
+}
+.streamoptions-list-item-del {
+    width: 10%;
+    width: calc(30px - 0px);
+    border-left: solid thin #BBB;
 }
 .streamoptions-list-item {
     margin: 0 10px 10px 0;
     border-radius: 2px;
     overflow: hidden;
+    min-width: 200px;
+    border: solid thin #BBB;
 }
 .streamoptions-add {
     border-radius: 2px;
+    border: solid thin #BBB;
+}
+.streamoptions-list-item-main {
+    width: 90%;
+    width: calc(100% - 30px);
 }
