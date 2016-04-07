@@ -15,9 +15,6 @@
          * @returns {$}
          */
         init: function (opts) {
-            if (this.tagName !== 'input') {
-                $.error('This function may only be initialised on an input element');
-            }
             var T = $(this);
             if (T.data('streamoptions') || ! T.length) {
                 // Already initialized
@@ -28,6 +25,9 @@
                 });
                 return T;
             }
+            if (T.prop('tagName') !== 'INPUT') {
+                $.error('This function may only be initialised on an input element');
+            }
             opts = opts || {};
             var data = {
                 instanceid: ++count,
@@ -36,7 +36,7 @@
                 },
                 value: T[0].value ? JSON.parse(T[0].value) : {}
             };
-            T.data('streamoptions', data);
+            T.addClass('streamoptions-value').data('streamoptions', data);
             app.v.initView.call(T, data);
         },
         /**
@@ -75,7 +75,7 @@
         },
         /**
          * Redraw the output
-         * @returns {$|undefined}
+         * @returns {$}
          */
         redraw: function () {
             var T = $(this);
@@ -88,13 +88,31 @@
             var data = T.data('streamoptions');
             if (!data) {
                 $.error('Call to function streamOptions(redraw) of an uninitialized object');
-                return;
             }
             T.streamOptions('getValue');
             $('.streamoptions-list-item', T.closest('.streamoptions-list'));
             app.v.drawOutput.call(T, data);
             return T;
+        },
+        updateAvailableOptions: function () {
+            var T = $(this);
+            if (T.length > 1) {
+                T.each(function () {
+                    return T.streamOptions('redraw');
+                });
+                return T;
+            }
+            var data = T.data('streamoptions');
+            if (!data) {
+                $.error('Call to function streamOptions(redraw) of an uninitialized object');
+            }
+            app.m.updateAvailableOptions.call(T);
         }
+    };
+    
+    app.m.updateAvailableOptions = function () {
+        var sodata = this.data('streamoptions');
+        
     };
     
     /**
@@ -124,28 +142,6 @@
     };
     
     /**
-     * Bind events onto all of the created elements in this instance
-     * @returns {undefined}
-     */
-    app.c.bindEvents = function () {
-        var t = this,
-        scope = this.closest('.streamoptions-list'),
-        opts = this.data('streamoptions').s.availableoptions;
-        $('.streamoptions-list-item-del', scope).unbind('click.removeitem').on('click.removeitem', function () {
-            if (confirm('Are you sure you want to remove this item?')) {
-                $(this).closest('.streamoptions-list-item').remove();
-            }
-        });
-        $('.streamoptions-add', scope).unbind('click.addone').on('click.addone', function () {
-            $(app.v.renderOpt('', '', opts)).insertBefore(this);
-            app.c.bindEvents.call(t);
-        });
-        $('select.streamoptions-list-item-title', scope).unbind('change.focusinput').on('change.focusinput', function () {
-            $('.streamoptions-list-item-value', scope).focus();
-        });
-    };
-    
-    /**
      * Render a key-value option
      * @param {string} title The title (key) of the option
      * @param {string} value The value of the option
@@ -153,8 +149,7 @@
      * @returns {html}
      */
     app.v.renderOpt = function (title, value, options) {
-        var main = app.v.renderKeySelector(title, options) + 
-                getHtml('input', null, null, 'streamoptions-list-item-value', {value: value}),
+        var main = app.v.renderKeySelector(title, options) + app.v.renderValueInput((options[title] || {type: 'string'}).type, value),
         html = getHtml('div', main, null, 'streamoptions-list-item-main') + getHtml('div', 'x', null, 'streamoptions-list-item-del');
         return getHtml('div', html, null, 'streamoptions-list-item');
     };
@@ -181,6 +176,75 @@
         } else {
             return getHtml('input', null, null, 'streamoptions-list-item-title', {value: key});
         }
+    };
+    
+    /**
+     * 
+     * @param {string} datatype
+     * @param {mixed} value
+     * @returns {html}
+     */
+    app.v.renderValueInput = function (datatype, value) {
+        var classes = ['streamoptions-list-item-value'];
+        var attrs = {value: value};
+        switch (datatype) {
+            case 'float':
+            case 'int':
+                attrs.type = 'number';
+                if (isNaN(Number(attrs.value))) {
+                    // Make sure numbers are numbers
+                    attrs.value = 0;
+                }
+                break;
+            case 'boolean':
+                attrs.type = 'range';
+                attrs.min = 0;
+                attrs.max = 1;
+                attrs.step = 1;
+                // Boolean can only have a maximum value of 1
+                attrs.value = (attrs.value > 1 ? 1 : attrs.value) || 0;
+                classes.push('streamoptions-boolean');
+                if (attrs.value) {
+                    classes.push('streamoptions-boolean-true');
+                }
+                break;
+        }
+        return getHtml('input', null, null, classes.join(' '), attrs);
+    };
+    
+    /**
+     * Bind events onto all of the created elements in this instance
+     * @returns {undefined}
+     */
+    app.c.bindEvents = function () {
+        var t = this,
+        scope = this.closest('.streamoptions-list'),
+        opts = this.data('streamoptions').s.availableoptions;
+        $('.streamoptions-list-item-del', scope).unbind('click.removeitem').on('click.removeitem', function () {
+            if (confirm('Are you sure you want to remove this item?')) {
+                $(this).closest('.streamoptions-list-item').remove();
+            }
+        });
+        $('.streamoptions-add', scope).unbind('click.addone').on('click.addone', function () {
+            $(app.v.renderOpt('', '', opts)).insertBefore(this);
+            app.c.bindEvents.call(t);
+        });
+        $('select.streamoptions-list-item-title', scope).unbind('change.focusinput').on('change.focusinput', function () {
+            var t = $(this);
+            var scope = t.closest('.streamoptions-list-item');
+            var valueinput = $('.streamoptions-list-item-value', scope);
+            var val = valueinput.val();
+            valueinput.replaceWith(app.v.renderValueInput((opts[this.value] || {type: 'string'}).type, val)).focus();
+            app.c.bindEvents.call($('.streamoptions-value', scope.closest('.streamoptions-list')));
+        });
+        $('.streamoptions-list-item-value.streamoptions-boolean', scope).unbind('change.colorise').on('change.colorise', function () {
+            if (this.value > 0) {
+                // true
+                $(this).addClass('streamoptions-boolean-true');
+            } else {
+                $(this).removeClass('streamoptions-boolean-true');
+            }
+        });
     };
     
     /**
@@ -261,6 +325,7 @@
                         set[x.replace(' ', '')] = {title: x, type: set[x]};
                     }
                 };
+                output = set;
                 break;
             case '[object String]':
                 // Allow for a comma-separated list of options
