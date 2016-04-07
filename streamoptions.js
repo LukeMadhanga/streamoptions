@@ -4,7 +4,20 @@
     
     var app = {c: {}, v: {}, m: {}},
     methods = {
+        /**
+         * Initialise the streamOptions plugin on a HTML input element
+         * @param {object} opts [optional] An object with one or more of the following options<pre>
+         *  {
+         *      availableoptions: String - A comma separated list of options; Object - An object in one of two forms: {title: datatype} 
+         *                        or {name: {title: string, type: string}} (the outputted data format); Array - An array of titles, 
+         *                        e.g. ['Title', 'Another title', ...]
+         *  }
+         * @returns {$}
+         */
         init: function (opts) {
+            if (this.tagName !== 'input') {
+                $.error('This function may only be initialised on an input element');
+            }
             var T = $(this);
             if (T.data('streamoptions') || ! T.length) {
                 // Already initialized
@@ -127,6 +140,9 @@
             $(app.v.renderOpt('', '', opts)).insertBefore(this);
             app.c.bindEvents.call(t);
         });
+        $('select.streamoptions-list-item-title', scope).unbind('change.focusinput').on('change.focusinput', function () {
+            $('.streamoptions-list-item-value', scope).focus();
+        });
     };
     
     /**
@@ -159,7 +175,7 @@
                 if (x === key) {
                     attrs['selected'] = 'selected';
                 }
-                opts += getHtml('option', x, null, null, attrs);
+                opts += getHtml('option', options[x].title, null, null, attrs);
             }
             return getHtml('select', opts, null, 'streamoptions-list-item-title');
         } else {
@@ -251,10 +267,14 @@
                 set = set.split(',');
                 /*falls through*/
             case '[object Array]':
+                set.sort(function (a, b) {
+                    // Sort alphabetically regardless of case
+                    return (a || '').toLowerCase() > (b || '').toLowerCase() ? 1 : -1;
+                });
                 output = {};
                 for (var i = 0; i < set.length; i++) {
                     var title = set[i],
-                    key = title.replace(' ', '');
+                    key = title.replace(' ', '').toLowerCase();
                     output[key] = {title: title, type: 'text'};
                 }
                 break;
@@ -262,6 +282,12 @@
         return output;
     }
     
+    /**
+     * Instantiate the streamOptions plugin on a HTML input element
+     * @param {mixed} methodOrOpts If left empty or an object is passed, the initialise function will be called, otherwise this will be
+     *  the name of the function to call
+     * @returns {unresolved} Usually a jQuery object, but may be different depending on the function called
+     */
     $.fn.streamOptions = function(methodOrOpts) {
         if (methods[methodOrOpts]) {
             // The first option passed is a method, therefore call this method
