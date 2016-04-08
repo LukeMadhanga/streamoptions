@@ -163,7 +163,9 @@
      * @returns {html}
      */
     app.v.renderOpt = function (title, value, options) {
-        var main = app.v.renderKeySelector(title, options) + app.v.renderValueInput((options[title] || {type: 'string'}).type, value),
+        title = title.title || title;
+        var curopt = options[title] || {type: 'string'};
+        var main = app.v.renderKeySelector(title, options) + app.v.renderValueInput(curopt.type, value, curopt.options),
         html = getHtml('div', main, null, 'streamoptions-list-item-main') + getHtml('div', 'x', null, 'streamoptions-list-item-del');
         return getHtml('div', html, null, 'streamoptions-list-item');
     };
@@ -192,15 +194,26 @@
         }
     };
     
-    /**
-     * 
-     * @param {string} datatype
-     * @param {mixed} value
-     * @returns {html}
-     */
-    app.v.renderValueInput = function (datatype, value) {
+    
+    app.v.renderValueInput = function (datatype, value, options) {
         var classes = ['streamoptions-list-item-value'];
         var attrs = {value: value};
+        if (options) {
+            var opts = '';
+            for (var i = 0; i < options.length; i++) {
+                var curopt = options[i];
+                if (!is_a(curopt, 'object')) {
+                    curopt = {title: curopt, value: curopt};
+                }
+                if (value === curopt.value) {
+                    attrs.selected = 'selected';
+                }
+                attrs = {value: curopt.value};
+                opts += getHtml('option', curopt.title, null, null, attrs);
+            }
+            classes.push('streamoptions-select-value');
+            return getHtml('select', opts, null, classes.join(' '));
+        }
         switch (datatype) {
             case 'float':
             case 'int':
@@ -248,7 +261,8 @@
             var scope = t.closest('.streamoptions-list-item');
             var valueinput = $('.streamoptions-list-item-value', scope);
             var val = valueinput.val();
-            valueinput.replaceWith(app.v.renderValueInput((opts[this.value] || {type: 'string'}).type, val)).focus();
+            var curopts = opts[this.value] || {type: 'string'};
+            valueinput.replaceWith(app.v.renderValueInput(curopts.type, val, curopts.options)).focus();
             app.c.bindEvents.call($('.streamoptions-value', scope.closest('.streamoptions-list')));
         });
         $('.streamoptions-list-item-value.streamoptions-boolean', scope).unbind('change.colorise').on('change.colorise', function () {
@@ -337,6 +351,13 @@
                     if (Object.prototype.toString.call(set[x]) === '[object String]') {
                         // Allow the user to supply data in the form {key: datatype}
                         set[x.replace(' ', '')] = {title: x, type: set[x]};
+                    }
+                    // Add in some defaults if missing
+                    if (!set[x].type) {
+                        set[x].type = 'string';
+                    }
+                    if (!set[x].title) {
+                        set[x].title = x;
                     }
                 };
                 output = set;
