@@ -180,8 +180,16 @@
         if (options) {
             var opts = getHtml('option', 'select...'),
             x,
-            attrs;
+            attrs,
+            order = [];
             for (x in options) {
+                order.push(x);
+            }
+            order.sort(function (a, b) {
+                (a || '') > (b || '') ? 1 : -1;
+            });
+            for (var i = 0; i < order.length; i++) {
+                var x = order[i];
                 attrs = {value: x};
                 if (x === key) {
                     attrs['selected'] = 'selected';
@@ -351,13 +359,14 @@
                     if (Object.prototype.toString.call(set[x]) === '[object String]') {
                         // Allow the user to supply data in the form {key: datatype}
                         set[x.replace(' ', '')] = {title: x, type: set[x]};
-                    }
-                    // Add in some defaults if missing
-                    if (!set[x].type) {
-                        set[x].type = 'string';
-                    }
-                    if (!set[x].title) {
-                        set[x].title = x;
+                    } else {
+                        // Add in some defaults if missing
+                        if (!set[x].type) {
+                            set[x].type = 'string';
+                        }
+                        if (!set[x].title) {
+                            set[x].title = x;
+                        }
                     }
                 };
                 output = set;
