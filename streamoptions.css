@@ -13,7 +13,7 @@
     min-width: 85px;
     width: 50%;
 }
-select.streamoptions-list-item-title {
+select.streamoptions-list-item-title,select.streamoptions-list-item-value.streamoptions-select-value {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -97,30 +97,36 @@ input.streamoptions-list-item-value.streamoptions-boolean::-webkit-slider-thumb 
     width: 50%;
     height: 26px;
     border-radius: 2px;
-    border: solid thin #CCC;
     background: #EEE;
     cursor: pointer;
     margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+    -webkit-transition: background-color 0.2s;
+    transition: background-color 0.2s;
 }
 /* All the same stuff for Firefox */
 input.streamoptions-list-item-value.streamoptions-boolean::-moz-range-thumb {
     width: 50%;
     height: 26px;
     border-radius: 2px;
-    border: solid thin #CCC;
     background: #EEE;
     cursor: pointer;
     margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+    -moz-transition: background-color 0.2s;
+    transition: background-color 0.2s;
 }
 /* All the same stuff for IE */
 input.streamoptions-list-item-value.streamoptions-boolean::-ms-thumb {
     width: 50%;
     height: 26px;
     border-radius: 2px;
-    border: solid thin #CCC;
     background: #EEE;
     cursor: pointer;
     margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+    -ms-transition: background-color 0.2s;
+    transition: background-color 0.2s;
+}
+input.streamoptions-list-item-value.streamoptions-boolean::-moz-range-track {
+    height: 0;
 }
 input.streamoptions-list-item-value.streamoptions-boolean.streamoptions-boolean-true::-webkit-slider-thumb {
     background: #93B7F9;
@@ -133,4 +139,10 @@ input.streamoptions-list-item-value.streamoptions-boolean.streamoptions-boolean-
 input.streamoptions-list-item-value.streamoptions-boolean.streamoptions-boolean-true::-ms-thumb {
     background: #93B7F9;
     border: none;
+}
+.streamoptions-list-item-value::-moz-focus-inner {
+    border: 0;
+}
+input.streamoptions-list-item-title::-moz-focus-inner {
+    border: 0;
 }
