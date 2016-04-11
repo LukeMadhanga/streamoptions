@@ -119,6 +119,23 @@
     };
     
     /**
+     * Compare function to be used with Array.sort()
+     * @param {mixed} a Should be a string to compare
+     * @param {mixed} b Should be another string to compare against
+     * @return {int} -1 if a is less than b, 1 if a is more than b, and zero if they are equal
+     */
+    app.m.sortValues = function (a, b) {
+        // Ensure that both a and b are strings
+        a = (a || '').toLowerCase();
+        b = (b || '').toLowerCase();
+        if (String.prototype.localeCompare) {
+            // The localeCompare function is available
+            return a.localeCompare(b);
+        }
+        return a < b ? -1 : (a > b ? 1 : 0);
+    };
+    
+    /**
      * Initialise the view
      * @param {object} data The object describing this instance
      * @returns {undefined}
@@ -185,17 +202,7 @@
             for (x in options) {
                 order.push(x);
             }
-            order.sort(function (a, b) {
-                // Ensure that both a and b are strings
-                a = (a || '').toLowerCase();
-                b = (b || '').toLowerCase();
-                if (''.localeCompare) {
-                    // The localeCompare function is available
-                    return a.localeCompare(b);
-                } else {
-                    a < b ? -1 : (a > b ? 1 : 0);
-                }
-            });
+            order.sort(app.m.sortValues);
             for (var i = 0; i < order.length; i++) {
                 var x = order[i];
                 attrs = {value: x};
@@ -210,12 +217,19 @@
         }
     };
     
-    
+    /**
+     * Render the value input where a user can set the value to a specified key
+     * @param {string} datatype The expected datatype of the value. float, int and boolean are supported
+     * @param {mixed} value The value. Can be undefined
+     * @param {array} options If the values for this key is limited, this is the array of available values
+     * @returns {html}
+     */
     app.v.renderValueInput = function (datatype, value, options) {
         var classes = ['streamoptions-list-item-value'];
         var attrs = {value: value};
         if (options) {
             var opts = '';
+            options.sort(app.m.sortValues);
             for (var i = 0; i < options.length; i++) {
                 var curopt = options[i];
                 if (!is_a(curopt, 'object')) {
@@ -384,10 +398,6 @@
                 set = set.split(',');
                 /*falls through*/
             case '[object Array]':
-                set.sort(function (a, b) {
-                    // Sort alphabetically regardless of case
-                    return (a || '').toLowerCase() > (b || '').toLowerCase() ? 1 : -1;
-                });
                 output = {};
                 for (var i = 0; i < set.length; i++) {
                     var title = set[i],
