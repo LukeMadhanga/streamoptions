@@ -186,7 +186,15 @@
                 order.push(x);
             }
             order.sort(function (a, b) {
-                (a || '') > (b || '') ? 1 : -1;
+                // Ensure that both a and b are strings
+                a = (a || '').toLowerCase();
+                b = (b || '').toLowerCase();
+                if (''.localeCompare) {
+                    // The localeCompare function is available
+                    return a.localeCompare(b);
+                } else {
+                    a < b ? -1 : (a > b ? 1 : 0);
+                }
             });
             for (var i = 0; i < order.length; i++) {
                 var x = order[i];
