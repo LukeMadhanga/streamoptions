@@ -235,10 +235,10 @@
                 if (!is_a(curopt, 'object')) {
                     curopt = {title: curopt, value: curopt};
                 }
+                attrs = {value: curopt.value};
                 if (value === curopt.value) {
                     attrs.selected = 'selected';
                 }
-                attrs = {value: curopt.value};
                 opts += getHtml('option', curopt.title, null, null, attrs);
             }
             classes.push('streamoptions-select-value');
