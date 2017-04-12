@@ -12,6 +12,7 @@
     height: 30px;
     min-width: 85px;
     width: 50%;
+    border-radius: 0;
 }
 select.streamoptions-list-item-title,select.streamoptions-list-item-value.streamoptions-select-value {
     -webkit-appearance: none;
