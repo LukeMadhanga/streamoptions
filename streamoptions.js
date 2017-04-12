@@ -181,7 +181,7 @@
      */
     app.v.renderOpt = function (title, value, options) {
         title = title.title || title;
-        var curopt = options ? options[title] : {type: 'string'};
+        var curopt = options ? (options[title] || {type: 'string'}) : {type: 'string'};
         var main = app.v.renderKeySelector(title, options) + app.v.renderValueInput(curopt.type, value, curopt.options),
         html = getHtml('div', main, null, 'streamoptions-list-item-main') + getHtml('div', 'x', null, 'streamoptions-list-item-del');
         return getHtml('div', html, null, 'streamoptions-list-item');
